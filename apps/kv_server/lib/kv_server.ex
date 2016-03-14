@@ -10,7 +10,7 @@ defmodule KVServer do
 
     children = [
       supervisor(Task.Supervisor, [[name: KVServer.TaskSupervisor]]),
-      worker(Task, [KVServer, :accept, [4040]])
+      worker(Task, [KVServer, :accept, []])
       # Define workers and child supervisors to be supervised
       # worker(KVServer.Worker, [arg1, arg2, arg3]),
     ]
@@ -21,7 +21,7 @@ defmodule KVServer do
     Supervisor.start_link(children, opts)
   end
 
-  def accept(port) do
+  def accept do
     # The options below mean:
     #
     # 1. `:binary` - receives data as binaries (instead of lists)
@@ -30,6 +30,7 @@ defmodule KVServer do
     # 4. `reuseaddr: true` - allows us to reuse the address if the listener
     #    crashes
     #
+    port = Application.fetch_env!(:kv_server, :port)
     {:ok, socket} = :gen_tcp.listen(port,
       [:binary, packet: :line, active: false, reuseaddr: true])
     Logger.info "Accepting connections on port #{port}"
